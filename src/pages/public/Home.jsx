@@ -40,8 +40,6 @@ export default function Home() {
       <main className="flex-1 flex flex-col w-full">
         <HeroCarousel banners={settings?.banners} />
 
-        <CategoryTiles products={list} />
-
         {/* New Arrivals */}
         <section className="mt-space-lg md:mt-space-xl">
           <div className={`flex items-baseline justify-between px-margin-mobile mb-space-sm md:mb-space-md ${DESK}`}>
@@ -67,6 +65,8 @@ export default function Home() {
             </div>
           )}
         </section>
+
+        <CategoryTiles products={list} />
 
         <Footer settings={settings || {}} />
       </main>
