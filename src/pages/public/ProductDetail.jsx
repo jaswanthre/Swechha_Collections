@@ -7,7 +7,7 @@ import Icon from '../../components/shared/Icon';
 import { FreeSizeChip, SizeSection } from '../../components/shared/SizeAvailability';
 import { useProduct, useProducts, useSettings } from '../../lib/api';
 import { Link } from 'react-router-dom';
-import { categoryMeta, DESK } from '../../lib/constants';
+import { categoriesFor, categoryMeta, DESK } from '../../lib/constants';
 import { discountPercent, formatINR, waLink } from '../../lib/format';
 import { isOutOfStock } from '../../lib/stock';
 import { useToast } from '../../context/Toast';
@@ -70,6 +70,7 @@ function ProductView({ p }) {
   const toast = useToast();
   const { data: all } = useProducts();
   const { data: settings } = useSettings();
+  const categories = categoriesFor(settings?.categories);
   const [slide, setSlide] = useState(0);
   const [size, setSize] = useState(null);
   const [colour, setColour] = useState(0);
@@ -143,7 +144,7 @@ function ProductView({ p }) {
       <nav aria-label="Breadcrumb" className={`hidden md:flex items-center gap-1.5 pt-6 pb-4 font-label-md text-label-md text-on-surface-variant ${DESK}`}>
         <Link to="/" className="hover:text-primary">Home</Link>
         <Icon name="chevron_right" className="text-sm" />
-        <Link to={`/collection?category=${encodeURIComponent(p.category)}`} className="hover:text-primary">{categoryMeta(p.category).label}</Link>
+        <Link to={`/collection?category=${encodeURIComponent(p.category)}`} className="hover:text-primary">{categoryMeta(p.category, categories).label}</Link>
         <Icon name="chevron_right" className="text-sm" />
         <span className="text-primary truncate">{p.name}</span>
       </nav>

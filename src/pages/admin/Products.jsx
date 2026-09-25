@@ -4,8 +4,8 @@ import { AdminHeader, AdminNav } from '../../components/admin/AdminChrome';
 import { StatusChip, Thumb, ToneChip } from '../../components/admin/bits';
 import StockSheet from '../../components/admin/StockSheet';
 import Icon from '../../components/shared/Icon';
-import { deleteProduct, useAdminProducts } from '../../lib/api';
-import { ADESK, ADMIN_BASE, CATEGORIES } from '../../lib/constants';
+import { deleteProduct, useAdminProducts, useSettings } from '../../lib/api';
+import { ADESK, ADMIN_BASE, categoriesFor } from '../../lib/constants';
 import { formatINR } from '../../lib/format';
 import { attentionChip, isOutOfStock, sizeRows, totalStock } from '../../lib/stock';
 import { isQuantityOnlyCategory } from '../../lib/constants';
@@ -26,6 +26,8 @@ const chip = (active) =>
 
 export default function Products() {
   const { data: products, loading, error, reload } = useAdminProducts();
+  const { data: settings } = useSettings();
+  const categories = categoriesFor(settings?.categories);
   const stats = useInventoryStats(products);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
@@ -82,7 +84,7 @@ export default function Products() {
           <button className={chip(!cat)} onClick={() => setCat('')} type="button">
             All
           </button>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button key={c.key} className={chip(cat === c.key)} onClick={() => setCat(cat === c.key ? '' : c.key)} type="button">
               {c.chip || c.label}
             </button>

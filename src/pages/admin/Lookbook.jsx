@@ -4,7 +4,7 @@ import { SingleImage } from '../../components/admin/ImageManager';
 import { ErrorSummary, Field, Section } from '../../components/admin/FormBits';
 import Icon from '../../components/shared/Icon';
 import { saveSettings, useAdminProducts, useSettings } from '../../lib/api';
-import { ADESK, CATEGORIES } from '../../lib/constants';
+import { ADESK, categoriesFor } from '../../lib/constants';
 import { useInventoryStats } from './Dashboard';
 import { useToast } from '../../context/Toast';
 
@@ -15,6 +15,7 @@ export default function Lookbook() {
   const toast = useToast();
   const { data: settings, loading } = useSettings();
   const { data: products } = useAdminProducts();
+  const categories = categoriesFor(settings?.categories);
   const stats = useInventoryStats(products);
   const [form, setForm] = useState(null);
   const [error, setError] = useState('');
@@ -42,7 +43,7 @@ export default function Lookbook() {
     { value: '/collection', label: 'All designs' },
     { value: '/collection?filter=new', label: 'New Arrivals' },
     { value: '/collection?filter=featured', label: 'Featured' },
-    ...CATEGORIES.map((c) => ({ value: `/collection?category=${encodeURIComponent(c.key)}`, label: c.label })),
+    ...categories.map((c) => ({ value: `/collection?category=${encodeURIComponent(c.key)}`, label: c.label })),
     ...(products || []).filter((p) => p.status === 'published').map((p) => ({ value: `/product/${p.slug}`, label: `Product: ${p.name}` })),
   ];
 

@@ -3,6 +3,18 @@ import { HttpError } from './http.js';
 // Defaults mirror the copy in the Stitch design so the site looks right before anything is edited.
 export const DEFAULT_SETTINGS = {
   collectionName: "Spring/Summer '25 Bridal Edit",
+  categories: [
+    { key: 'Sarees', label: 'Sarees', singular: 'Saree', blurb: 'Classic silhouettes' },
+    { key: 'Lehengas', label: 'Lehengas', singular: 'Lehenga', blurb: 'Festive favorites' },
+    { key: 'Kurti', label: 'Kurti', singular: 'Kurti', blurb: 'Everyday elegance' },
+    { key: 'Leggings', label: 'Leggings', singular: 'Leggings', blurb: 'Comfort and style' },
+    { key: 'Tops', label: 'Tops', singular: 'Top', blurb: 'Minimal essentials' },
+    { key: 'Co-Ord sets', label: 'Co-Ord sets', singular: 'Co-Ord set', blurb: 'Matching separates' },
+    { key: 'Dresses(3-pcs)', label: 'Dresses(3-pcs)', singular: 'Dress(3-pcs)', blurb: 'Set styling' },
+    { key: 'Frocks', label: 'Frocks', singular: 'Frock', blurb: 'Light and playful' },
+    { key: 'Night dresses', label: 'Night dresses', singular: 'Night dress', blurb: 'Soft comfort' },
+    { key: 'Bamboo night dresses', label: 'Bamboo night dresses', singular: 'Bamboo night dress', blurb: 'Breathable lounge' },
+  ],
   banners: [
     {
       tag: 'AUTUMN / FESTIVE 2025',
@@ -23,6 +35,13 @@ export const DEFAULT_SETTINGS = {
 const str = (v, max = 300) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 export function sanitizeSettings(body) {
+  const categories = (Array.isArray(body.categories) ? body.categories : DEFAULT_SETTINGS.categories)
+    .map((category) => {
+      const label = str(category?.label || category?.key, 80);
+      return { key: str(category?.key || label, 80), label, singular: str(category?.singular || label, 80), blurb: str(category?.blurb, 120) };
+    })
+    .filter((category) => category.key && category.label)
+    .slice(0, 50);
   const banners = (Array.isArray(body.banners) ? body.banners : [])
     .map((b) => ({
       tag: str(b?.tag, 40),
@@ -40,6 +59,7 @@ export function sanitizeSettings(body) {
   const instagram = str(body.instagram, 300);
   return {
     collectionName: str(body.collectionName, 80),
+    categories,
     banners,
     whatsapp,
     email: str(body.email, 120),

@@ -5,8 +5,8 @@ import BottomNav from '../../components/public/BottomNav';
 import CategoryChips from '../../components/public/CategoryChips';
 import { CardSkeleton, GridCard } from '../../components/public/ProductCards';
 import Icon from '../../components/shared/Icon';
-import { useProducts } from '../../lib/api';
-import { categoryMeta, DESK } from '../../lib/constants';
+import { useProducts, useSettings } from '../../lib/api';
+import { categoriesFor, categoryMeta, DESK } from '../../lib/constants';
 import { isOutOfStock } from '../../lib/stock';
 import { LoadError } from './Home';
 
@@ -19,6 +19,8 @@ const SORTS = [
 export default function Collection() {
   const [params, setParams] = useSearchParams();
   const { data: products, loading, error, reload } = useProducts();
+  const { data: settings } = useSettings();
+  const categories = categoriesFor(settings?.categories);
   const category = params.get('category') || '';
   const filter = params.get('filter') || '';
   const q = params.get('q') || '';
@@ -54,7 +56,7 @@ export default function Collection() {
     return list;
   }, [products, category, filter, q, sort, inStock]);
 
-  const title = category ? categoryMeta(category).label : filter === 'new' ? 'New Arrivals' : filter === 'featured' ? 'Featured Masterpieces' : 'All Designs';
+  const title = category ? categoryMeta(category, categories).label : filter === 'new' ? 'New Arrivals' : filter === 'featured' ? 'Featured Masterpieces' : 'All Designs';
   const pill = (active) =>
     `shrink-0 px-3 py-1.5 rounded-full font-label-md text-label-md transition-colors active:scale-95 border ${
       active ? 'bg-primary-container text-white border-primary-container' : 'bg-surface-container-low text-on-surface-variant border-outline-variant/30 hover:bg-surface-container'
@@ -82,7 +84,7 @@ export default function Collection() {
         </label>
       </div>
       <div className="pt-2 md:[&_div]:justify-start">
-        <CategoryChips value={category} onChange={(c) => update({ category: c })} />
+        <CategoryChips categories={categories} value={category} onChange={(c) => update({ category: c })} />
       </div>
       <div className={`flex items-center gap-2 px-margin-mobile pt-1 pb-3 md:pb-5 overflow-x-auto no-scrollbar ${DESK}`}>
         <label className="relative shrink-0">

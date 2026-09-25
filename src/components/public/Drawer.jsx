@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../shared/Icon';
-import { CATEGORIES } from '../../lib/constants';
+import { categoriesFor } from '../../lib/constants';
 import { useSettings } from '../../lib/api';
 import { waLink } from '../../lib/format';
 
 export default function Drawer({ open, onClose }) {
   const { data: settings } = useSettings();
+  const categories = categoriesFor(settings?.categories);
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -37,7 +38,7 @@ export default function Drawer({ open, onClose }) {
           <Link to="/collection" className={item}>
             All designs <Icon name="chevron_right" className="text-outline" />
           </Link>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <Link key={c.key} to={`/collection?category=${encodeURIComponent(c.key)}`} className={item}>
               {c.label} <Icon name="chevron_right" className="text-outline" />
             </Link>

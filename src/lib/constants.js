@@ -32,7 +32,14 @@ export const ALL_COLLECTIONS_TILE = {
 };
 
 export const CATEGORY_KEYS = CATEGORIES.map((c) => c.key);
-export const categoryMeta = (key) => CATEGORIES.find((c) => c.key === key) || { key, label: key, singular: key, blurb: '' };
+export const categoriesFor = (saved) => {
+  if (!Array.isArray(saved) || !saved.length) return CATEGORIES;
+  return saved.map((category) => ({
+    ...(CATEGORIES.find((builtIn) => builtIn.key === category.key) || {}),
+    ...category,
+  }));
+};
+export const categoryMeta = (key, categories = CATEGORIES) => categories.find((c) => c.key === key) || { key, label: key, singular: key, blurb: '' };
 export const isQuantityOnlyCategory = (category) => category === 'Sarees';
 
 export const STANDARD_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];

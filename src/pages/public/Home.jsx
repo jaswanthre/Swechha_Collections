@@ -10,7 +10,7 @@ import { CardSkeleton, GridCard, RailCard } from '../../components/public/Produc
 import Icon from '../../components/shared/Icon';
 import ScrollToHash from '../../components/shared/ScrollToHash';
 import { useProducts, useSettings } from '../../lib/api';
-import { DESK } from '../../lib/constants';
+import { categoriesFor, DESK } from '../../lib/constants';
 
 export function LoadError({ error, onRetry }) {
   return (
@@ -66,7 +66,7 @@ export default function Home() {
           )}
         </section>
 
-        <CategoryTiles products={list} />
+        <CategoryTiles products={list} categories={categoriesFor(settings?.categories)} />
 
         <Footer settings={settings || {}} />
       </main>

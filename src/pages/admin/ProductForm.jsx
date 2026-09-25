@@ -6,8 +6,8 @@ import ImageManager from '../../components/admin/ImageManager';
 import { ErrorSummary, Field, Section, Segmented, Switch } from '../../components/admin/FormBits';
 import Icon from '../../components/shared/Icon';
 import { SizeSection } from '../../components/shared/SizeAvailability';
-import { createProduct, deleteProduct, updateProduct, useAdminProduct, useAdminProducts } from '../../lib/api';
-import { ADESK, ADMIN_BASE, BLOUSE_PIECE_OPTIONS, CATEGORIES, isQuantityOnlyCategory, MANDATORY_SIZES, STANDARD_SIZES } from '../../lib/constants';
+import { createProduct, deleteProduct, saveSettings, updateProduct, useAdminProduct, useAdminProducts, useSettings } from '../../lib/api';
+import { ADESK, ADMIN_BASE, BLOUSE_PIECE_OPTIONS, categoriesFor, isQuantityOnlyCategory, MANDATORY_SIZES, STANDARD_SIZES } from '../../lib/constants';
 import { discountPercent } from '../../lib/format';
 import { stockSummary } from '../../lib/stock';
 import { useToast } from '../../context/Toast';
@@ -83,6 +83,7 @@ export default function ProductForm() {
   const navigate = useNavigate();
   const toast = useToast();
   const { data: all } = useAdminProducts();
+  const { data: settings } = useSettings();
   const { data: product, loading, error } = useAdminProduct(id);
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState({});
@@ -90,6 +91,8 @@ export default function ProductForm() {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [customSize, setCustomSize] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
+  const [addingCategory, setAddingCategory] = useState(false);
   const loaded = useRef(false);
   const dirty = useRef(false);
 
@@ -124,9 +127,27 @@ export default function ProductForm() {
 
   const off = discountPercent(Number(form.mrp), Number(form.price));
   const quantityOnly = isQuantityOnlyCategory(form.category);
+  const categories = categoriesFor(settings?.categories);
   const others = useMemo(() => (all || []).filter((p) => p._id !== id), [all, id]);
   const previewProduct = { ...form, freeSizeStock: Number(form.freeSizeStock) || 0 };
   const summary = stockSummary(previewProduct);
+
+  const addCategory = async () => {
+    const label = customCategory.trim().slice(0, 80);
+    if (!label || !settings || categories.some((category) => category.label.toLowerCase() === label.toLowerCase())) return;
+    setAddingCategory(true);
+    try {
+      const next = [...(settings.categories || categories), { key: label, label, singular: label, blurb: 'New collection' }];
+      await saveSettings({ ...settings, categories: next });
+      setCustomCategory('');
+      set(label === 'Sarees' ? { category: label, sizeType: 'free', sizes: [] } : { category: label, sizeType: 'sized', sizes: withMandatorySizes(form.sizes) });
+      toast(`${label} category added`);
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setAddingCategory(false);
+    }
+  };
 
   /* sizes */
   const allSizeLabels = [...STANDARD_SIZES, ...form.sizes.map((s) => s.label).filter((l) => !STANDARD_SIZES.includes(l))];
@@ -248,12 +269,24 @@ export default function ProductForm() {
               value={form.category}
               onChange={(e) => set(e.target.value === 'Sarees' ? { category: e.target.value, sizeType: 'free', sizes: [] } : { category: e.target.value, sizeType: 'sized', sizes: withMandatorySizes(form.sizes) })}
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c.key} value={c.key}>
                   {c.label}
                 </option>
               ))}
             </select>
+            <div className="flex gap-2 mt-2">
+              <input
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
+                placeholder="Add a category"
+                className="field flex-1 text-[13px]"
+              />
+              <button type="button" onClick={addCategory} disabled={addingCategory || !customCategory.trim()} className="shrink-0 px-3 rounded-xl border border-[#C59B6A] font-label-lg text-label-lg active:scale-95 disabled:opacity-50">
+                {addingCategory ? 'Adding...' : '+ Add'}
+              </button>
+            </div>
           </Field>
           <Field label="Fabric line" error={errors.fabric} htmlFor="fabric" hint="Short line above the name, e.g. “Pure Tussar Silk with Zari”.">
             <input id="fabric" className={`field ${errors.fabric ? 'field-error' : ''}`} value={form.fabric} onChange={(e) => set({ fabric: e.target.value })} placeholder="Pure Tussar Silk with Zari" />
