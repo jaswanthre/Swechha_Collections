@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { getDb } from '../_lib/db.js';
 import { route, readBody, HttpError, noStore, publicCache } from '../_lib/http.js';
 import { isAdmin, requireAdmin } from '../_lib/auth.js';
-import { sanitizeProduct, validateProduct } from '../_lib/product.js';
+import { sanitizeProduct, validateProduct, normalizeInventory } from '../_lib/product.js';
 import { destroyImages } from '../_lib/cloudinary.js';
 
 // Accepts a Mongo _id (admin screens) or a slug (public URLs).
@@ -21,8 +21,9 @@ async function update(req, res) {
   noStore(res);
   const col = (await getDb()).collection('products');
   const existing = await loadOr404(col, req.query.id);
-  const changes = sanitizeProduct(readBody(req));
-  const merged = { ...existing, ...changes };
+  const submitted = sanitizeProduct(readBody(req));
+  const merged = normalizeInventory({ ...existing, ...submitted });
+  const changes = { ...submitted, sizeType: merged.sizeType, sizes: merged.sizes };
   validateProduct(merged);
   const updated = await col.findOneAndUpdate(
     { _id: existing._id },

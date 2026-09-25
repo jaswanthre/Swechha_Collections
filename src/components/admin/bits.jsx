@@ -57,9 +57,8 @@ export function Stepper({ value, onChange, label }) {
   );
 }
 
-export function StockStateChip({ stock, limit }) {
+export function StockStateChip({ stock }) {
   if (stock <= 0) return <ToneChip tone="red">Not Available</ToneChip>;
-  if (stock <= limit) return <ToneChip tone="amber">Low Stock</ToneChip>;
   return <ToneChip tone="green">Available</ToneChip>;
 }
 

@@ -1,5 +1,6 @@
 import Icon from './Icon';
-import { sizeState, stockSummary, threshold } from '../../lib/stock';
+import { isQuantityOnlyCategory } from '../../lib/constants';
+import { sizeState, stockSummary } from '../../lib/stock';
 
 const PILL = 'min-w-10 px-2 h-10 rounded-xl font-label-md flex items-center justify-center transition-all';
 const PILL_IDLE = `${PILL} border border-outline-variant/40 bg-surface-container-lowest text-on-surface font-medium hover:border-primary active:scale-95`;
@@ -17,21 +18,19 @@ export function FreeSizeChip({ product }) {
       }`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-600' : 'bg-error'}`} />
-      {ok ? 'Free Size – Available' : 'Free Size – Not Available'}
-      {ok && total <= threshold(product) && <span className="font-medium">· Only {total} left</span>}
+      {quantityOnly ? (ok ? 'Quantity – Available' : 'Quantity – Not Available') : ok ? 'Free Size – Available' : 'Free Size – Not Available'}
     </span>
   );
 }
 
-/** Size pills exactly as the PDP design: normal / "Only N left" / greyed + strike-through "Sold out". */
+/** Size pills show selectable and sold-out sizes. */
 export function SizePills({ product, selected, onSelect }) {
-  const limit = threshold(product);
   const { available, out } = stockSummary(product);
   return (
     <>
       <div className="flex flex-wrap items-start gap-2 pt-1">
         {(product.sizes || []).map((s) => {
-          const state = sizeState(s.stock, limit);
+          const state = sizeState(s.stock);
           return (
             <div key={s.label} className="flex flex-col items-center">
               {state === 'out' ? (
@@ -49,7 +48,6 @@ export function SizePills({ product, selected, onSelect }) {
                 </button>
               )}
               {state === 'out' && <span className="text-[9px] text-outline mt-0.5">Sold out</span>}
-              {state === 'low' && <span className="text-[9px] text-primary font-medium mt-0.5">Only {s.stock} left</span>}
             </div>
           );
         })}
@@ -72,11 +70,13 @@ export function SizePills({ product, selected, onSelect }) {
 }
 
 export function SizeSection({ product, selected, onSelect, onGuide }) {
+  const quantityOnly = isQuantityOnlyCategory(product.category);
+  const sized = product.sizeType === 'sized' && !isQuantityOnlyCategory(product.category);
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="font-label-md text-[12px] font-semibold text-on-surface">Size Availability</span>
-        {product.sizeType === 'sized' ? (
+        <span className="font-label-md text-[12px] font-semibold text-on-surface">{quantityOnly ? 'Quantity Availability' : 'Size Availability'}</span>
+        {sized ? (
           onGuide && (
             <button className="font-label-md text-[10px] text-secondary underline" onClick={onGuide} type="button">
               Size Guide
@@ -86,7 +86,7 @@ export function SizeSection({ product, selected, onSelect, onGuide }) {
           <FreeSizeChip product={product} />
         )}
       </div>
-      {product.sizeType === 'sized' && <SizePills product={product} selected={selected} onSelect={onSelect} />}
+      {sized && <SizePills product={product} selected={selected} onSelect={onSelect} />}
     </div>
   );
 }

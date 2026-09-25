@@ -15,6 +15,7 @@ const strList = (v, maxItems = 12, maxLen = 200) =>
     .map((s) => str(s, maxLen))
     .filter(Boolean)
     .slice(0, maxItems);
+  const MANDATORY_SIZES = ['M', 'L', 'XL', 'XXL'];
 
 export function slugify(s) {
   return (
@@ -59,7 +60,6 @@ const FIELD_SANITIZERS = {
       .filter((s) => s.label && !seen.has(s.label) && seen.add(s.label))
       .slice(0, 20);
   },
-  lowStockThreshold: (v) => int(v, { min: 1, max: 100 }),
   sareeDetails: (v) => ({
     sareeLength: str(v?.sareeLength, 40),
     blousePiece: BLOUSE_PIECE_OPTIONS.includes(v?.blousePiece) ? v.blousePiece : '',
@@ -93,7 +93,6 @@ export const PRODUCT_DEFAULTS = {
   sizeType: 'free',
   freeSizeStock: 0,
   sizes: [],
-  lowStockThreshold: 2,
   sareeDetails: { sareeLength: '', blousePiece: '', blouseLength: '', blouseFabric: '' },
   description: '',
   fabricDetails: [],
@@ -105,6 +104,16 @@ export const PRODUCT_DEFAULTS = {
   displayOrder: 0,
 };
 
+export function normalizeInventory(data) {
+  if (data.category === 'Sarees') return { ...data, sizeType: 'free', sizes: [] };
+  const byLabel = new Map((data.sizes || []).map((size) => [size.label, size]));
+  return {
+    ...data,
+    sizeType: 'sized',
+    sizes: [...MANDATORY_SIZES.map((label) => byLabel.get(label) || { label, stock: 1 }), ...(data.sizes || []).filter((size) => !MANDATORY_SIZES.includes(size.label))],
+  };
+}
+
 /** Validate a complete (merged) product before it is written. */
 export function validateProduct(p) {
   const problems = [];
@@ -114,7 +123,7 @@ export function validateProduct(p) {
   if (!p.fabric) problems.push('Fabric line is required.');
   if (!p.price || p.price <= 0) problems.push('Selling price must be more than 0.');
   if (p.mrp && p.mrp < p.price) problems.push('MRP cannot be lower than the selling price.');
-  if (p.sizeType === 'sized' && (!p.sizes || p.sizes.length === 0)) problems.push('Add at least one size, or switch to Free Size.');
+  if (p.category !== 'Sarees' && (!p.sizes || MANDATORY_SIZES.some((label) => !p.sizes.some((size) => size.label === label)))) problems.push('M, L, XL and XXL are required sizes.');
   if (p.status === 'published' && (!p.images || p.images.length === 0)) problems.push('Add at least one photo before publishing.');
   if (problems.length) throw new HttpError(400, problems.join(' '));
 }

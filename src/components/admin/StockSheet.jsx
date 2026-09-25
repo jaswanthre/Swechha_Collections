@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import { Sheet, Stepper, StockStateChip, Thumb } from './bits';
 import { updateProduct } from '../../lib/api';
-import { threshold } from '../../lib/stock';
+import { isQuantityOnlyCategory } from '../../lib/constants';
 import { useToast } from '../../context/Toast';
 
 /** Quick Stock Update — change quantities without opening the full form. */
 export default function StockSheet({ product, onClose }) {
   const toast = useToast();
-  const sized = product.sizeType === 'sized';
+  const sized = product.sizeType === 'sized' && !isQuantityOnlyCategory(product.category);
+  const quantityOnly = isQuantityOnlyCategory(product.category);
   const [sizes, setSizes] = useState(() => (product.sizes || []).map((s) => ({ ...s })));
   const [free, setFree] = useState(product.freeSizeStock || 0);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
-  const limit = threshold(product);
 
   const save = async () => {
     setBusy(true);
     setErr('');
     try {
-      await updateProduct(product._id, sized ? { sizes } : { freeSizeStock: free });
+      await updateProduct(product._id, sized ? { sizes } : { sizeType: 'free', sizes: [], freeSizeStock: free });
       toast('Stock updated');
       onClose();
     } catch (e) {
@@ -45,7 +45,7 @@ export default function StockSheet({ product, onClose }) {
             <div key={s.label} className={row}>
               <div className="flex flex-col gap-1 min-w-0">
                 <span className="font-title-md text-[15px] text-on-surface">{s.label}</span>
-                <StockStateChip stock={s.stock} limit={limit} />
+                <StockStateChip stock={s.stock} />
               </div>
               <Stepper label={s.label} value={s.stock} onChange={(v) => setSizes((all) => all.map((x, j) => (j === i ? { ...x, stock: v } : x)))} />
             </div>
@@ -54,7 +54,7 @@ export default function StockSheet({ product, onClose }) {
           <div className={row}>
             <div className="flex flex-col gap-1">
               <span className="font-title-md text-[15px] text-on-surface">Free Size</span>
-              <StockStateChip stock={free} limit={limit} />
+              {!quantityOnly && <StockStateChip stock={free} />}
             </div>
             <Stepper label="Free Size" value={free} onChange={setFree} />
           </div>

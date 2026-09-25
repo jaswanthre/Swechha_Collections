@@ -8,13 +8,12 @@ import ScrollToHash from '../../components/shared/ScrollToHash';
 import { useAdminProducts, useSettings } from '../../lib/api';
 import { ADESK, ADMIN_BASE, categoryMeta } from '../../lib/constants';
 import { formatINR } from '../../lib/format';
-import { attentionChip, isOutOfStock, stockSummary, threshold } from '../../lib/stock';
+import { attentionChip, isOutOfStock } from '../../lib/stock';
 
 export function useInventoryStats(products) {
   return useMemo(() => {
     const list = products || [];
     const out = list.filter(isOutOfStock);
-    const low = list.filter((p) => !isOutOfStock(p) && stockSummary(p).low.length > 0);
     const attention = list.filter((p) => attentionChip(p));
     return {
       total: list.length,
@@ -22,8 +21,6 @@ export function useInventoryStats(products) {
       published: list.filter((p) => p.status === 'published').length,
       drafts: list.filter((p) => p.status !== 'published').length,
       out: out.length,
-      low: low.length,
-      lowLimit: Math.max(2, ...list.map(threshold)),
       attention,
     };
   }, [products]);

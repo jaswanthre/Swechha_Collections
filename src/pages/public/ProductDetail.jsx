@@ -78,7 +78,6 @@ function ProductView({ p }) {
   const gallery = useRef(null);
   const goTo = (i) => gallery.current?.scrollTo({ left: i * gallery.current.offsetWidth, behavior: 'smooth' });
   const off = discountPercent(p.mrp, p.price);
-  const isSaree = p.category === 'Sarees';
   const images = p.images?.length ? p.images : [{ url: '' }];
   const out = isOutOfStock(p);
 
@@ -262,9 +261,7 @@ function ProductView({ p }) {
 
       {/* Size availability */}
       <section className="px-margin-mobile md:px-0 space-y-3 py-3.5 border-b border-outline-variant/20 bg-surface-container-lowest/60 md:bg-transparent">
-        {(!isSaree || p.sizeType === 'sized') && (
-          <SizeSection product={p} selected={size} onSelect={setSize} onGuide={() => toast('Standard Swechha Size Guide: Regular Indian Festive Fit')} />
-        )}
+        <SizeSection product={p} selected={size} onSelect={setSize} onGuide={() => toast('Standard Swechha Size Guide: Regular Indian Festive Fit')} />
       </section>
 
       {/* Accordions */}

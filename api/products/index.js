@@ -1,7 +1,7 @@
 import { getDb } from '../_lib/db.js';
 import { route, readBody, noStore, publicCache } from '../_lib/http.js';
 import { requireAdmin } from '../_lib/auth.js';
-import { sanitizeProduct, validateProduct, PRODUCT_DEFAULTS, slugify } from '../_lib/product.js';
+import { sanitizeProduct, validateProduct, PRODUCT_DEFAULTS, normalizeInventory, slugify } from '../_lib/product.js';
 
 const SORT = { displayOrder: 1, createdAt: -1 };
 
@@ -34,7 +34,7 @@ export default route({
     noStore(res);
     const db = await getDb();
     const col = db.collection('products');
-    const data = { ...PRODUCT_DEFAULTS, ...sanitizeProduct(readBody(req)) };
+    const data = normalizeInventory({ ...PRODUCT_DEFAULTS, ...sanitizeProduct(readBody(req)) });
     validateProduct(data);
     const now = new Date();
     const doc = { ...data, slug: await uniqueSlug(col, slugify(data.name)), createdAt: now, updatedAt: now };

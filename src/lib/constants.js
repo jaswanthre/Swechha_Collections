@@ -33,8 +33,10 @@ export const ALL_COLLECTIONS_TILE = {
 
 export const CATEGORY_KEYS = CATEGORIES.map((c) => c.key);
 export const categoryMeta = (key) => CATEGORIES.find((c) => c.key === key) || { key, label: key, singular: key, blurb: '' };
+export const isQuantityOnlyCategory = (category) => category === 'Sarees';
 
 export const STANDARD_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
+export const MANDATORY_SIZES = ['M', 'L', 'XL', 'XXL'];
 export const BLOUSE_PIECE_OPTIONS = ['Included (Unstitched)', 'Included (Stitched)', 'Not included'];
 
 export const ADMIN_BASE = '/adminDivya';

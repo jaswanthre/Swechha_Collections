@@ -7,7 +7,7 @@ import { ErrorSummary, Field, Section, Segmented, Switch } from '../../component
 import Icon from '../../components/shared/Icon';
 import { SizeSection } from '../../components/shared/SizeAvailability';
 import { createProduct, deleteProduct, updateProduct, useAdminProduct, useAdminProducts } from '../../lib/api';
-import { ADESK, ADMIN_BASE, BLOUSE_PIECE_OPTIONS, CATEGORIES, STANDARD_SIZES } from '../../lib/constants';
+import { ADESK, ADMIN_BASE, BLOUSE_PIECE_OPTIONS, CATEGORIES, isQuantityOnlyCategory, MANDATORY_SIZES, STANDARD_SIZES } from '../../lib/constants';
 import { discountPercent } from '../../lib/format';
 import { stockSummary } from '../../lib/stock';
 import { useToast } from '../../context/Toast';
@@ -22,10 +22,9 @@ const EMPTY = {
   price: '',
   images: [],
   colors: [],
-  sizeType: 'sized',
+  sizeType: 'free',
   freeSizeStock: 1,
   sizes: [],
-  lowStockThreshold: 2,
   sareeDetails: { sareeLength: '', blousePiece: 'Included (Unstitched)', blouseLength: '', blouseFabric: '' },
   description: '',
   fabricDetails: '',
@@ -37,9 +36,15 @@ const EMPTY = {
   displayOrder: 0,
 };
 
+const withMandatorySizes = (sizes = []) => {
+  const byLabel = new Map(sizes.map((size) => [size.label, size]));
+  return [...MANDATORY_SIZES.map((label) => byLabel.get(label) || { label, stock: 1 }), ...sizes.filter((size) => !MANDATORY_SIZES.includes(size.label))];
+};
+
 const toForm = (p) => ({
   ...EMPTY,
   ...p,
+  ...(isQuantityOnlyCategory(p.category) ? { sizeType: 'free', sizes: [] } : { sizeType: 'sized', sizes: withMandatorySizes(p.sizes) }),
   mrp: p.mrp || '',
   price: p.price || '',
   sareeDetails: { ...EMPTY.sareeDetails, ...(p.sareeDetails || {}) },
@@ -49,6 +54,7 @@ const toForm = (p) => ({
 
 const toPayload = (f) => ({
   ...f,
+  ...(isQuantityOnlyCategory(f.category) ? { sizeType: 'free', sizes: [] } : { sizeType: 'sized', sizes: withMandatorySizes(f.sizes) }),
   mrp: Number(f.mrp) || 0,
   price: Number(f.price) || 0,
   fabricDetails: f.fabricDetails.split('\n').map((s) => s.trim()).filter(Boolean),
@@ -117,6 +123,7 @@ export default function ProductForm() {
   const setSaree = (patch) => set({ sareeDetails: { ...form.sareeDetails, ...patch } });
 
   const off = discountPercent(Number(form.mrp), Number(form.price));
+  const quantityOnly = isQuantityOnlyCategory(form.category);
   const others = useMemo(() => (all || []).filter((p) => p._id !== id), [all, id]);
   const previewProduct = { ...form, freeSizeStock: Number(form.freeSizeStock) || 0 };
   const summary = stockSummary(previewProduct);
@@ -235,7 +242,12 @@ export default function ProductForm() {
             </div>
           </Field>
           <Field label="Category" htmlFor="category">
-            <select id="category" className="field" value={form.category} onChange={(e) => set({ category: e.target.value })}>
+            <select
+              id="category"
+              className="field"
+              value={form.category}
+              onChange={(e) => set(e.target.value === 'Sarees' ? { category: e.target.value, sizeType: 'free', sizes: [] } : { category: e.target.value, sizeType: 'sized', sizes: withMandatorySizes(form.sizes) })}
+            >
               {CATEGORIES.map((c) => (
                 <option key={c.key} value={c.key}>
                   {c.label}
@@ -268,12 +280,21 @@ export default function ProductForm() {
 
         </div>
         <div className="space-y-4">
-        <Section title="Sizes & Stock" hint="Set 0 for any size you don't have — customers will see it as Not Available." id="sizes">
+        <Section title={quantityOnly ? 'Quantity & Stock' : 'Sizes & Stock'} hint={quantityOnly ? 'Set the number of sarees currently available.' : "Set 0 for any size you don't have — customers will see it as Not Available."} id="sizes">
+          {quantityOnly ? (
+            <div className="rounded-xl border border-outline-variant/40 px-3 py-2.5 flex items-center justify-between gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="font-title-md text-[15px] text-on-surface">Quantity</span>
+              </div>
+              <Stepper label="Quantity" value={form.freeSizeStock} onChange={(freeSizeStock) => set({ freeSizeStock })} />
+            </div>
+          ) : (
+            <>
           <div>
             <span className="field-label">Select sizes</span>
             <div className="flex flex-wrap gap-2">
               {allSizeLabels.map((l) => (
-                <button key={l} type="button" className={chipBtn(form.sizes.some((s) => s.label === l))} onClick={() => toggleSize(l)} aria-pressed={form.sizes.some((s) => s.label === l)}>
+                <button key={l} type="button" className={chipBtn(form.sizes.some((s) => s.label === l))} onClick={() => toggleSize(l)} disabled={MANDATORY_SIZES.includes(l)} aria-pressed={form.sizes.some((s) => s.label === l)}>
                   {l}
                 </button>
               ))}
@@ -292,20 +313,22 @@ export default function ProductForm() {
             </div>
             {errors.sizes && <p className="font-body-sm text-[12px] text-error mt-1">{errors.sizes}</p>}
           </div>
-          {form.sizes.length > 0 && (
+            </>
+          )}
+          {(quantityOnly || form.sizes.length > 0) && (
             <div className="rounded-xl border border-outline-variant/40 divide-y divide-outline-variant/20">
               {form.sizes.map((s) => (
                 <div key={s.label} className="flex items-center justify-between gap-2 px-3 py-2.5">
                   <div className="flex flex-col gap-1 min-w-0">
                     <span className="font-title-md text-[15px] text-on-surface">{s.label}</span>
-                    <StockStateChip stock={s.stock} limit={form.lowStockThreshold} />
+                    <StockStateChip stock={s.stock} />
                   </div>
                   <Stepper label={s.label} value={s.stock} onChange={(v) => setSizeStock(s.label, v)} />
                 </div>
               ))}
             </div>
           )}
-          {form.sizes.length > 0 && (
+          {!quantityOnly && form.sizes.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               <button type="button" onClick={() => set({ sizes: form.sizes.map((s) => ({ ...s, stock: Math.max(1, s.stock) })) })} className="py-2 rounded-xl border border-outline-variant/60 font-label-md text-label-md text-on-surface active:scale-95">
                 Mark all available
@@ -318,15 +341,12 @@ export default function ProductForm() {
               </button>
             </div>
           )}
-          <Field label="Low stock alert when at or below" htmlFor="low" hint="Customers see “Only N left” at this level.">
-            <input id="low" type="number" min="1" inputMode="numeric" className="field w-28" value={form.lowStockThreshold} onChange={(e) => set({ lowStockThreshold: Math.max(1, Number(e.target.value) || 1) })} />
-          </Field>
           <p className="font-body-sm text-[12px] text-on-surface">
             Total stock: <strong>{summary.total}</strong>
             {summary.available.length > 0 && ` · Available: ${summary.available.join(', ')}`}
             {summary.out.length > 0 && ` · Not available: ${summary.out.join(', ')}`}
           </p>
-          {form.sizes.length > 0 && (
+          {!quantityOnly && form.sizes.length > 0 && (
             <div className="rounded-xl bg-surface-container-low/70 border border-outline-variant/30 p-3">
               <span className="font-label-md text-label-md text-secondary font-semibold uppercase tracking-wider">Customers will see</span>
               <div className="mt-2">

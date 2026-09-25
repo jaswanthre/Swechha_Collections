@@ -8,6 +8,7 @@ import { deleteProduct, useAdminProducts } from '../../lib/api';
 import { ADESK, ADMIN_BASE, CATEGORIES } from '../../lib/constants';
 import { formatINR } from '../../lib/format';
 import { attentionChip, isOutOfStock, sizeRows, totalStock } from '../../lib/stock';
+import { isQuantityOnlyCategory } from '../../lib/constants';
 import { useInventoryStats } from './Dashboard';
 import { ConfirmSheet } from '../../components/admin/bits';
 
@@ -120,7 +121,7 @@ export default function Products() {
                         <span>•</span>
                         <span className="font-semibold text-on-surface">{formatINR(p.price)}</span>
                       </div>
-                      {p.sizeType === 'sized' && (
+                      {p.sizeType === 'sized' && !isQuantityOnlyCategory(p.category) && (
                         <p className="font-label-md text-label-md text-on-surface-variant truncate">
                           {rows.map((s) => `${s.label} ${s.stock > 0 ? '✓' : '✕'}`).join('  ')}
                         </p>
