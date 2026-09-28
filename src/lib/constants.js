@@ -8,7 +8,6 @@ import coOrdSets from '../../images_for_ShopbyCategory/co_ord_sets.jpg';
 import dresses3Pcs from '../../images_for_ShopbyCategory/dresses_3pcs.jpg';
 import frocks from '../../images_for_ShopbyCategory/frocks.jpg';
 import nightDresses from '../../images_for_ShopbyCategory/night_dresses.jpg';
-import bambooNightDresses from '../../images_for_ShopbyCategory/bamboo_night_dresses.jpg';
 
 // Category copy and fallback tile photos come from the local Shop by Category image set.
 export const CATEGORIES = [
@@ -21,7 +20,6 @@ export const CATEGORIES = [
   { key: 'Dresses(3-pcs)', label: 'Dresses(3-pcs)', singular: 'Dress(3-pcs)', blurb: 'Set styling', img: dresses3Pcs },
   { key: 'Frocks', label: 'Frocks', singular: 'Frock', blurb: 'Light and playful', img: frocks },
   { key: 'Night dresses', label: 'Night dresses', singular: 'Night dress', blurb: 'Soft comfort', img: nightDresses },
-  { key: 'Bamboo night dresses', label: 'Bamboo night dresses', singular: 'Bamboo night dress', blurb: 'Breathable lounge', img: bambooNightDresses },
 ];
 
 export const ALL_COLLECTIONS_TILE = {
@@ -33,8 +31,8 @@ export const ALL_COLLECTIONS_TILE = {
 
 export const CATEGORY_KEYS = CATEGORIES.map((c) => c.key);
 export const categoriesFor = (saved) => {
-  if (!Array.isArray(saved) || !saved.length) return CATEGORIES;
-  return saved.map((category) => ({
+  const categories = !Array.isArray(saved) || !saved.length ? CATEGORIES : saved;
+  return categories.filter((category) => category.key?.toLowerCase() !== 'bamboo night dresses' && category.label?.toLowerCase() !== 'bamboo night dresses').map((category) => ({
     ...(CATEGORIES.find((builtIn) => builtIn.key === category.key) || {}),
     ...category,
   }));

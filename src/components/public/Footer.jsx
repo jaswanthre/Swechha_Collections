@@ -1,4 +1,5 @@
 import Icon from '../shared/Icon';
+import { BrandMark, BrandWordmark } from '../shared/BrandLogo';
 import { formatPhone, waLink } from '../../lib/format';
 import { useToast } from '../../context/Toast';
 import { DESK } from '../../lib/constants';
@@ -20,7 +21,8 @@ export default function Footer({ settings = {} }) {
       <div className={`md:grid md:grid-cols-3 md:gap-10 md:items-start ${DESK}`}>
         <div>
           <div className="text-center md:text-left">
-            <h4 className="font-headline-sm text-headline-sm text-primary font-medium tracking-wide">Swechha Collections</h4>
+            <BrandMark className="w-14 h-14 mx-auto md:mx-0 mb-3" />
+            <h4 className="mb-2"><BrandWordmark size="xl" /></h4>
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 italic">Contemporary elegance woven into timeless Indian traditions.</p>
           </div>
           <div className="my-space-md border-b border-outline-variant/20 w-16 mx-auto md:mx-0 md:mb-0" />
@@ -68,7 +70,7 @@ export default function Footer({ settings = {} }) {
         <p className="font-label-md text-label-md text-on-surface-variant/80 mt-2 px-2 leading-relaxed">
           Private Catalogue Presentation • Inquire with our stylists for bespoke consultations.
         </p>
-        <span className="font-label-md text-[10px] text-outline mt-1">© {new Date().getFullYear()} Swechha Collections Atelier. All rights reserved.</span>
+        <span className="font-label-md text-[10px] text-outline mt-1">© {new Date().getFullYear()} <span className="font-brand-caps tracking-wider">Swechha Collections</span> Atelier. All rights reserved.</span>
       </div>
     </footer>
   );

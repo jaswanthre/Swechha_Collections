@@ -82,7 +82,7 @@ export default function Dashboard() {
             <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${live ? 'bg-emerald-600 animate-pulse' : 'bg-outline'}`} />
             <div className="min-w-0">
               <p className="font-label-md text-label-md text-on-surface-variant font-medium">{live ? 'Boutique Catalogue Live' : 'Catalogue Offline'}</p>
-              <p className="font-body-sm text-body-sm text-on-surface font-medium truncate">{settings?.collectionName || 'Swechha Collections'}</p>
+              <p className="font-brand text-[18px] leading-6 text-on-surface font-semibold truncate">{settings?.collectionName || 'Swechha Collections'}</p>
             </div>
           </div>
           <div className="text-right shrink-0">

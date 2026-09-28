@@ -9,7 +9,11 @@ export default route({
     const doc = await db.collection('settings').findOne({ _id: 'site' });
     publicCache(res, 60);
     const { _id, ...rest } = doc || {};
-    res.status(200).json({ ...DEFAULT_SETTINGS, ...rest });
+    const settings = { ...DEFAULT_SETTINGS, ...rest };
+    settings.categories = (settings.categories || DEFAULT_SETTINGS.categories).filter(
+      (category) => category.key?.toLowerCase() !== 'bamboo night dresses' && category.label?.toLowerCase() !== 'bamboo night dresses'
+    );
+    res.status(200).json(settings);
   },
   async PUT(req, res) {
     requireAdmin(req);

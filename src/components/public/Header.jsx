@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../shared/Icon';
+import BrandLogo from '../shared/BrandLogo';
 
 /** Sticky top app bar — Stitch home header. */
 export default function Header({ onMenu }) {
@@ -15,8 +16,8 @@ export default function Header({ onMenu }) {
       >
         <Icon name="menu" className="text-primary text-2xl" />
       </button>
-      <Link to="/" className="flex flex-col items-center justify-center text-center">
-        <span className="font-headline-sm text-headline-sm font-medium tracking-wide text-primary">Swechha Collections</span>
+      <Link to="/" aria-label="Swechha Collections home" className="flex items-center justify-center min-w-0 px-1">
+        <BrandLogo markClassName="w-8 h-8 min-[400px]:w-9 min-[400px]:h-9" size="sm" />
       </Link>
       <button
         aria-label="Search Catalogue"
@@ -66,8 +67,8 @@ export function DesktopHeader() {
   return (
     <header className="hidden md:block sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/20">
       <div className="max-w-6xl mx-auto px-8 h-[72px] flex items-center justify-between gap-6">
-        <Link to="/" className="flex flex-col shrink-0">
-          <span className="font-headline-sm text-headline-sm font-medium tracking-wide text-primary">Swechha Collections</span>
+        <Link to="/" aria-label="Swechha Collections home" className="shrink-0">
+          <BrandLogo markClassName="w-11 h-11" size="lg" />
         </Link>
         <nav className="flex items-center gap-7">
           {DESKTOP_LINKS.map((l) => {

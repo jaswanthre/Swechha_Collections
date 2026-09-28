@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../shared/Icon';
+import { BrandMark, BrandWordmark } from '../shared/BrandLogo';
 import { categoriesFor } from '../../lib/constants';
 import { useSettings } from '../../lib/api';
 import { waLink } from '../../lib/format';
@@ -25,9 +26,9 @@ export default function Drawer({ open, onClose }) {
       <button className="absolute inset-0 bg-on-surface/40 backdrop-blur-[2px]" aria-label="Close menu" onClick={onClose} />
       <aside className="animate-drawer-in absolute left-0 top-0 bottom-0 w-[82%] max-w-[340px] bg-surface shadow-2xl flex flex-col overflow-y-auto">
         <div className="flex items-center justify-between px-margin-mobile py-3 border-b border-outline-variant/20">
-          <div className="flex flex-col">
-            <span className="font-headline-sm text-headline-sm font-medium tracking-wide text-primary">Swechha Collections</span>
-            <span className="font-label-md text-label-md tracking-widest text-secondary font-semibold -mt-1">ATELIER</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <BrandMark className="w-10 h-10" />
+            <BrandWordmark size="md" />
           </div>
           <button onClick={onClose} aria-label="Close menu" className="w-9 h-9 rounded-full flex items-center justify-center text-primary hover:bg-surface-container">
             <Icon name="close" className="text-2xl" />

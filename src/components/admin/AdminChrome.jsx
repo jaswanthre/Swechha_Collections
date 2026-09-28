@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Icon from '../shared/Icon';
+import { BrandMark, BrandWordmark } from '../shared/BrandLogo';
 import { ADMIN_BASE } from '../../lib/constants';
 
 /** Sticky admin header — Stitch dashboard header. */
@@ -10,7 +11,8 @@ export function AdminHeader({ alerts = 0 }) {
       <div className="flex justify-between items-center w-full gap-4 md:max-w-6xl md:mx-auto md:px-8">
         <Link to={ADMIN_BASE} className="flex flex-col">
           <div className="flex items-center gap-2">
-            <span className="font-headline-sm text-headline-sm font-medium tracking-wide text-primary md:whitespace-nowrap">Swechha Collections</span>
+            <BrandMark className="w-9 h-9" />
+            <BrandWordmark size="md" />
             <span className="bg-primary-container text-surface-container-lowest font-label-md text-label-md px-2 py-0.5 rounded-full tracking-wider shadow-sm">ADMIN</span>
           </div>
           <span className="font-label-md text-label-md text-secondary tracking-widest mt-0.5 md:whitespace-nowrap">ATELIER CONCIERGE &amp; INVENTORY</span>

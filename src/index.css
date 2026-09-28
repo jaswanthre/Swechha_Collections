@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Brand wordmark — gold lettering matching the Swechha Collections logo */
+.text-brand-gold {
+  background: linear-gradient(180deg, #B98A45 0%, #8C5E22 55%, #6E4516 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* ── Copied from the Stitch export ─────────────────────────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

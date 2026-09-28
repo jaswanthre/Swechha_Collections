@@ -74,6 +74,8 @@ export default {
         margin: '4rem',
       },
       fontFamily: {
+        brand: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        'brand-caps': ['Cinzel', 'Georgia', 'serif'],
         'display-lg-mobile': ['Playfair Display', 'Georgia', 'serif'],
         'headline-sm': ['Playfair Display', 'Georgia', 'serif'],
         'display-lg': ['Playfair Display', 'Georgia', 'serif'],

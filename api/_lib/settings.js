@@ -13,7 +13,6 @@ export const DEFAULT_SETTINGS = {
     { key: 'Dresses(3-pcs)', label: 'Dresses(3-pcs)', singular: 'Dress(3-pcs)', blurb: 'Set styling' },
     { key: 'Frocks', label: 'Frocks', singular: 'Frock', blurb: 'Light and playful' },
     { key: 'Night dresses', label: 'Night dresses', singular: 'Night dress', blurb: 'Soft comfort' },
-    { key: 'Bamboo night dresses', label: 'Bamboo night dresses', singular: 'Bamboo night dress', blurb: 'Breathable lounge' },
   ],
   banners: [
     {
@@ -40,7 +39,7 @@ export function sanitizeSettings(body) {
       const label = str(category?.label || category?.key, 80);
       return { key: str(category?.key || label, 80), label, singular: str(category?.singular || label, 80), blurb: str(category?.blurb, 120) };
     })
-    .filter((category) => category.key && category.label)
+    .filter((category) => category.key && category.label && category.key.toLowerCase() !== 'bamboo night dresses' && category.label.toLowerCase() !== 'bamboo night dresses')
     .slice(0, 50);
   const banners = (Array.isArray(body.banners) ? body.banners : [])
     .map((b) => ({
