@@ -11,6 +11,7 @@ const PILL_OUT = `${PILL} border border-outline-variant/30 bg-surface-container 
 export function FreeSizeChip({ product }) {
   const { total } = stockSummary(product);
   const ok = total > 0;
+  const quantityOnly = isQuantityOnlyCategory(product.category);
   return (
     <span
       className={`inline-flex items-center gap-1 border text-[10px] font-semibold px-2 py-0.5 rounded-full ${
